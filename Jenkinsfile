@@ -16,7 +16,6 @@
             stage('Build Docker Image') {
                 steps {
                     script {
-                        checkout scm
                         def customImage = docker.build("${env.DOCKERHUB_REPOSITORY}")
                     }
                 }
