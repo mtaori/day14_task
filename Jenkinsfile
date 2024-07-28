@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         DOCKER_CREDENTIALS_ID = 'docker'
-        DOCKERHUB_REPOSITORY = 'mtaori/javaimage:v10'
+        DOCKERHUB_REPOSITORY = 'mtaori/javaimage:v11'
     }
 
     stages {
@@ -29,7 +29,8 @@ pipeline {
                 script {
                     // Run the Docker container from the image
                     docker.image("${env.DOCKERHUB_REPOSITORY}").inside {
-                        sh 'java App' 
+                        sh 'javac App.java' 
+                        sh 'java App'
                     }
                 }
             }
