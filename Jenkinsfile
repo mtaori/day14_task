@@ -1,44 +1,37 @@
-pipeline {
-    agent any
+    pipeline {
+        agent any
 
-    environment {
-        DOCKER_CREDENTIALS_ID = 'docker'
-        DOCKERHUB_REPOSITORY = 'mtaori/javaimage:v2'
-    }
-
-    stages {
-        stage('Checkout') {
-            steps {
-                git 'https://github.com/mtaori/day14_task.git'
-            }
+        environment {
+            DOCKER_CREDENTIALS_ID = 'docker'
+            DOCKERHUB_REPOSITORY = 'mtaori/javaimage:v2'
         }
 
-        // stage('Build Docker Image') {
-        //     steps {
-        //         script {
-        //             docker.build(DOCKERHUB_REPOSITORY)
-        //         }
-        //     }
-        // }
+        stages {
+            stage('Checkout') {
+                steps {
+                    git 'https://github.com/mtaori/day14_task.git'
+                }
+            }
 
-        // stage('Push Docker Image') {
-        //     steps {
-        //         script {
-        //             docker.withRegistry('https://index.docker.io', DOCKER_CREDENTIALS_ID) {
-        //                 docker.image(DOCKERHUB_REPOSITORY).push('latest')
-        //             }
-        //         }
-        //     }
-        // }
+            stage('Build Docker Image') {
+                steps {
+                    script {
+                        checkout scm
+                        def customImage = docker.build("${env.DOCKERHUB_REPOSITORY}")
+                    }
+                }
+            }
 
-        // stage('Deploy Docker Container') {
-        //     steps {
-        //         script {
-        //             sh '''
-        //             docker run -d --name java-app --rm $DOCKERHUB_REPOSITORY:latest
-        //             '''
-        //         }
-        //     }
-        // }
+            stage('Run Tests') {
+                steps {
+                    script {
+                        // Run the tests inside the Docker container
+                        docker.image("${env.DOCKERHUB_REPOSITORY}").inside {
+                            sh 'make test'
+                        }
+                    }
+                }
+            }
+        
+        }
     }
-}
